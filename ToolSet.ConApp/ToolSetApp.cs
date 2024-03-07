@@ -1,0 +1,124 @@
+﻿namespace ToolSet.ConApp
+{
+    internal partial class ToolSetApp : CommonTool.ConsoleApplication
+    {
+        #region Class-Constructors
+        /// <summary>
+        /// Initializes the <see cref="Program"/> class.
+        /// This static constructor sets up the necessary properties for the program.
+        /// </remarks>
+        static ToolSetApp()
+        {
+            ClassConstructing();
+            ClassConstructed();
+        }
+        /// <summary>
+        /// This method is called during the construction of the class.
+        /// </summary>
+        static partial void ClassConstructing();
+        /// <summary>
+        /// Represents a method that is called when a class is constructed.
+        /// </summary>
+        static partial void ClassConstructed();
+        #endregion Class-Constructors
+
+        #region Instance-Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DocConversionApp"/> class.
+        /// </summary>
+        public ToolSetApp()
+        {
+            Constructing();
+            Constructed();
+        }
+        /// <summary>
+        /// This method is called during the construction of the object.
+        /// </summary>
+        partial void Constructing();
+        /// <summary>
+        /// This method is called when the object is constructed.
+        /// </summary>
+        partial void Constructed();
+        #endregion Instance-Constructors
+
+        #region app properties
+        #endregion app properties
+
+        #region overrides
+        /// <summary>
+        /// Creates an array of menu items for the application menu.
+        /// </summary>
+        /// <returns>An array of MenuItem objects representing the menu items.</returns>
+        protected override MenuItem[] CreateMenuItems()
+        {
+            var mnuIdx = 0;
+            var menuItems = new List<MenuItem>
+            {
+                new()
+                {
+                    Key = $"{++mnuIdx}",
+                    Text = ToLabelText("Force", "Change force flag"),
+                    Action = (self) => ChangeForce(),
+                },
+                new()
+                {
+                    Key = $"{++mnuIdx}",
+                    Text = ToLabelText("Path", "Change source path"),
+                    Action = (self) => ChangeSourcePath(),
+                },
+                new()
+                {
+                    Key = "---",
+                    Text = new string('-', 65),
+                    Action = (self) => { },
+                    ForegroundColor = ConsoleColor.DarkGreen,
+                },
+                new()
+                {
+                    Key = $"{++mnuIdx}",
+                    Text = ToLabelText("DocConversion", "Runs the document conversion tool."),
+                    Action = (self) => { new DocConversion.ConApp.DocConversionApp().Run([]); },
+                },
+                new()
+                {
+                    Key = $"{++mnuIdx}",
+                    Text = ToLabelText("PlantUML", "Runs the plantUML builder tool."),
+                    Action = (self) => { new PlantUML.ConApp.PlantUMLApp().Run([]); },
+                },
+            };
+
+            return [.. menuItems.Union(CreateExitMenuItems())];
+        }
+
+        /// <summary>
+        /// Prints the header for the PlantUML application.
+        /// </summary>
+        /// <param name="sourcePath">The path of the solution.</param>
+        protected override void PrintHeader()
+        {
+            var count = 0;
+            var saveForeColor = ForegroundColor;
+
+            ForegroundColor = ConsoleColor.Green;
+
+            count = PrintLine(nameof(ToolSet));
+            PrintLine('=', count);
+            PrintLine();
+            ForegroundColor = saveForeColor;
+            PrintLine($"Force flag:     {Force}");
+            PrintLine();
+        }
+        /// <summary>
+        /// Prints the footer of the application.
+        /// </summary>
+        protected override void PrintFooter()
+        {
+            PrintLine();
+            Print("Choose [n|n,n|a...all|x|X]: ");
+        }
+        #endregion overrides
+
+        #region app methods
+        #endregion app methods
+    }
+}
