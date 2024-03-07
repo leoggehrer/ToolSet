@@ -56,18 +56,6 @@
             {
                 new()
                 {
-                    Key = $"{++mnuIdx}",
-                    Text = ToLabelText("Force", "Change force flag"),
-                    Action = (self) => ChangeForce(),
-                },
-                new()
-                {
-                    Key = $"{++mnuIdx}",
-                    Text = ToLabelText("Path", "Change source path"),
-                    Action = (self) => ChangeSourcePath(),
-                },
-                new()
-                {
                     Key = "---",
                     Text = new string('-', 65),
                     Action = (self) => { },
@@ -76,17 +64,16 @@
                 new()
                 {
                     Key = $"{++mnuIdx}",
-                    Text = ToLabelText("DocConversion", "Runs the document conversion tool."),
-                    Action = (self) => { new DocConversion.ConApp.DocConversionApp().Run([]); },
+                    Text = ToLabelText("PlantUML", "Runs the plantUML builder tool."),
+                    Action = (self) => { new PlantUML.ConApp.PlantUMLApp().Run([]); },
                 },
                 new()
                 {
                     Key = $"{++mnuIdx}",
-                    Text = ToLabelText("PlantUML", "Runs the plantUML builder tool."),
-                    Action = (self) => { new PlantUML.ConApp.PlantUMLApp().Run([]); },
+                    Text = ToLabelText("DocConversion", "Runs the document conversion tool."),
+                    Action = (self) => { new DocConversion.ConApp.DocConversionApp().Run([]); },
                 },
             };
-
             return [.. menuItems.Union(CreateExitMenuItems())];
         }
 
@@ -105,7 +92,6 @@
             PrintLine('=', count);
             PrintLine();
             ForegroundColor = saveForeColor;
-            PrintLine($"Force flag:     {Force}");
             PrintLine();
         }
         /// <summary>
