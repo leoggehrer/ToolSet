@@ -64,13 +64,13 @@
                 new()
                 {
                     Key = $"{++mnuIdx}",
-                    Text = ToLabelText("PlantUML", "Runs the plantUML builder tool."),
+                    Text = ToLabelText("UML-Builder", "Runs the PlantUML builder tool."),
                     Action = (self) => { new PlantUML.ConApp.PlantUMLApp().Run([]); },
                 },
                 new()
                 {
                     Key = $"{++mnuIdx}",
-                    Text = ToLabelText("DocConversion", "Runs the document conversion tool."),
+                    Text = ToLabelText("Conversion", "Runs the document conversion tool."),
                     Action = (self) => { new DocConversion.ConApp.DocConversionApp().Run([]); },
                 },
             };
