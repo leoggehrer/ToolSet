@@ -70,7 +70,7 @@
                 new()
                 {
                     Key = $"{++mnuIdx}",
-                    Text = ToLabelText("Conversion", "Runs the document conversion tool."),
+                    Text = ToLabelText("DOC-Conversion", "Runs the document conversion tool."),
                     Action = (self) => { new DocConversion.ConApp.DocConversionApp().Run([]); },
                 },
             };
