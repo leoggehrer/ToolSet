@@ -67,6 +67,12 @@
                     Text = ToLabelText("DOC-Conversion", "Runs the document conversion tool."),
                     Action = (self) => { new DocConversion.ConApp.DocConversionApp().Run([]); },
                 },
+                new()
+                {
+                    Key = $"{++mnuIdx}",
+                    Text = ToLabelText("UML-Watcher", "Watches a folder for changes and creates UML diagrams."),
+                    Action = (self) => { new UMLWatcherApp().Run([]); },
+                },
             };
             return [.. menuItems.Union(CreateExitMenuItems())];
         }
@@ -87,14 +93,6 @@
             PrintLine();
             ForegroundColor = saveForeColor;
             PrintLine();
-        }
-        /// <summary>
-        /// Prints the footer of the application.
-        /// </summary>
-        protected override void PrintFooter()
-        {
-            PrintLine();
-            Print("Choose [n|n,n|a...all|x|X]: ");
         }
         #endregion overrides
 
