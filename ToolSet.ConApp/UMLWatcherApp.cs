@@ -52,7 +52,11 @@ namespace ToolSet.ConApp
         /// Gets or sets the selected diagram type.
         /// </summary>
         public static DiagramBuilderType DiagramBuilder { get; set; } = DiagramBuilderType.Activity;
-        /// <summary>
+         /// <summary>
+        /// Gets or sets the folder path for diagrams.
+        /// </summary>
+        public static string DiagramFolder { get; set; } = "diagrams";
+       /// <summary>
         /// Gets or sets the path to the documents.
         /// </summary>
         private static string DocumentsPath { get; set; }
@@ -78,6 +82,12 @@ namespace ToolSet.ConApp
                     Key = $"{++mnuIdx}",
                     Text = ToLabelText("Force", "Change force flag"),
                     Action = (self) => ChangeForce(),
+                },
+                new()
+                {
+                    Key = $"{++mnuIdx}",
+                    Text = ToLabelText("Folder", "Change diagram folder"),
+                    Action = (self) => ChangeDiagramFolder(),
                 },
                 new()
                 {
@@ -109,7 +119,7 @@ namespace ToolSet.ConApp
                 var menuItem = new MenuItem
                 {
                     Key = $"{++mnuIdx}",
-                    Text = ToLabelText("Remove watcher", $"{path.Replace(DocumentsPath, string.Empty)} - Force={watcher.Force} - {watcher.DiagramBuilder}"),
+                    Text = ToLabelText("Remove watcher", $"{path.Replace(DocumentsPath, string.Empty)} - {watcher.DiagramBuilder} - Force={watcher.Force}"),
                     Tag = "watcher",
                     Action = (self) => DeleteWatcher(self),
                     Params = new() { { "index", i } },
@@ -118,6 +128,11 @@ namespace ToolSet.ConApp
                 menuItems.Add(menuItem);
             }
             menuItems.Add(CreateMenuSeparator());
+
+            if (mnuIdx % 10 != 0)
+            {
+                mnuIdx += 10 - (mnuIdx % 10);
+            }
 
             var files = GetSourceCodePaths(DocumentsPath, ["*.cs"]).ToArray();
 
@@ -155,6 +170,13 @@ namespace ToolSet.ConApp
         #endregion overrides
 
         #region app methods
+        /// <summary>
+        /// Changes the diagram folder name.
+        /// </summary>
+        private static void ChangeDiagramFolder()
+        {
+            DiagramFolder = ReadLine("Enter the diagram folder name: ").Trim();
+        }
         /// <summary>
         /// Changes the diagram builder type based on the current value of DiagramBuilder.
         /// </summary>
