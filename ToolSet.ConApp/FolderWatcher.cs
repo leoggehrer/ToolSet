@@ -33,6 +33,10 @@ namespace ToolSet.ConApp
         /// Gets or sets a value indicating whether the force flag is enabled.
         /// </summary>
         public bool Force { get; private set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether the process is currently in progress.
+        /// </summary>
+        private bool InProcess { get; set; } = false;
         private FileSystemWatcher Watcher { get; set; }
         #endregion properties
 
@@ -90,18 +94,32 @@ namespace ToolSet.ConApp
         /// <param name="e">The event data.</param>
         private void OnChanged(object source, FileSystemEventArgs e)
         {
-            var path = Path.GetDirectoryName(e.FullPath);
-
-            if (Path.Exists(path))
+            if (InProcess == false)
             {
-                UMLDiagramBuilder diagram = DiagramBuilder switch
+                InProcess = true;
+
+                var path = Path.GetDirectoryName(e.FullPath);
+
+                if (Path.Exists(path))
                 {
-                    DiagramBuilderType.Activity => new ActivityDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
-                    DiagramBuilderType.Class => new ClassDiagramBuilder(path, DiagramFolder,  CreateCompleteDiagram, Force),
-                    DiagramBuilderType.Sequence => new SequenceDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
-                    _ => throw new InvalidOperationException("Invalid diagram builder type."),
-                };
-                diagram.CreateFromPath();
+                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                    {
+                        while (IsPathAccessible(path, [Filter]) == false)
+                        {
+                            Thread.Sleep(500);
+                        }
+                    }
+
+                    UMLDiagramBuilder diagram = DiagramBuilder switch
+                    {
+                        DiagramBuilderType.Activity => new ActivityDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
+                        DiagramBuilderType.Class => new ClassDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
+                        DiagramBuilderType.Sequence => new SequenceDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
+                        _ => throw new InvalidOperationException("Invalid diagram builder type."),
+                    };
+                    diagram.CreateFromPath();
+                }
+                InProcess = false;
             }
             Debug.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         }
@@ -137,6 +155,53 @@ namespace ToolSet.ConApp
             Debug.WriteLine($"Error: {e.GetException()}");
         }
         #endregion Event-Handlers
+
+        #region helpers
+        /// <summary>
+        /// Checks if the specified path is accessible and none of the files matching the search pattern are in use.
+        /// </summary>
+        /// <param name="path">The path to check.</param>
+        /// <param name="searchPattern">The search pattern to match files.</param>
+        /// <returns>True if the path is accessible and none of the files are in use; otherwise, false.</returns>
+        public static bool IsPathAccessible(string path, string[] searchPattern)
+        {
+            var result = true;
+            var files = CommonTool.Application.GetSourceCodeFiles(path, searchPattern);
+
+            for (var i = 0; i < files.Count && result; i++)
+            {
+                var file = files[i];
+
+                if (IsFileInUse(file))
+                {
+                    result = false;
+                }
+            }
+            return result;
+        }
+        /// <summary>
+        /// Checks if a file is currently in use by another process.
+        /// </summary>
+        /// <param name="filePath">The path of the file to check.</param>
+        /// <returns>True if the file is in use, false otherwise.</returns>
+        private static bool IsFileInUse(string filePath)
+        {
+            try
+            {
+                // Versuch, die Datei exklusiv zu öffnen
+                using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+                {
+                    // Wenn es gelingt, schließen wir die Datei wieder
+                }
+                return false;
+            }
+            catch (IOException)
+            {
+                // Eine IOException bedeutet, dass die Datei von einem anderen Prozess verwendet wird
+                return true;
+            }
+        }
+        #endregion helpers
 
         #region dispose
         /// <summary>
