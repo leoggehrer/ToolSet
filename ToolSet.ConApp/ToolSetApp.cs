@@ -92,7 +92,6 @@
             PrintLine('=', count);
             PrintLine();
             ForegroundColor = saveForeColor;
-            PrintLine();
         }
         #endregion overrides
 

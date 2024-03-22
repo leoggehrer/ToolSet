@@ -3,25 +3,57 @@ using PlantUML.ConApp;
 
 namespace ToolSet.ConApp
 {
+    /// <summary>
+    /// Represents a folder watcher that monitors changes in a specified directory.
+    /// </summary>
     public partial class FolderWatcher : IDisposable
     {
         #region properties
+        /// <summary>
+        /// Gets or sets the type of diagram builder.
+        /// </summary>
         public DiagramBuilderType DiagramBuilder { get; private set; }
+        /// <summary>
+        /// Gets the path being watched.
+        /// </summary>
         public string WatchPath { get; private set; }
+        /// <summary>
+        /// Gets or sets the folder path for diagrams.
+        /// </summary>
         public string DiagramFolder { get; private set; }
+        /// <summary>
+        /// Gets or sets the filter used to determine which files are monitored in the folder.
+        /// </summary>
         public string Filter { get; private set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether to create a complete diagram.
+        /// </summary>
+        public bool CreateCompleteDiagram { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether the force flag is enabled.
+        /// </summary>
         public bool Force { get; private set; }
         private FileSystemWatcher Watcher { get; set; }
         #endregion properties
 
         #region Instance-Constructors
-        public FolderWatcher(string path, string diagramFolder, DiagramBuilderType diagramBuilderType, string filter, bool force)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FolderWatcher"/> class with the specified parameters.
+        /// </summary>
+        /// <param name="path">The path of the folder to watch.</param>
+        /// <param name="diagramFolder">The folder where the diagrams will be saved.</param>
+        /// <param name="diagramBuilderType">The type of diagram builder to use.</param>
+        /// <param name="filter">The filter for the files to watch.</param>
+        /// <param name="createCompleteDiagram">A flag indicating whether to create a complete diagram.</param>
+        /// <param name="force">A flag indicating whether to force the creation of diagrams.</param>
+        public FolderWatcher(string path, string diagramFolder, DiagramBuilderType diagramBuilderType, string filter, bool createCompleteDiagram, bool force)
         {
             Constructing();
             WatchPath = path;
             DiagramFolder = diagramFolder;
             DiagramBuilder = diagramBuilderType;
             Filter = filter;
+            CreateCompleteDiagram = createCompleteDiagram;
             Force = force;
             Watcher = new FileSystemWatcher(WatchPath);
 
@@ -51,6 +83,11 @@ namespace ToolSet.ConApp
         #endregion Instance-Constructors
 
         #region Event-Handlers
+        /// <summary>
+        /// Event handler for the FileSystemWatcher's Changed event.
+        /// </summary>
+        /// <param name="source">The object that raised the event.</param>
+        /// <param name="e">The event data.</param>
         private void OnChanged(object source, FileSystemEventArgs e)
         {
             var path = Path.GetDirectoryName(e.FullPath);
@@ -59,9 +96,9 @@ namespace ToolSet.ConApp
             {
                 UMLDiagramBuilder diagram = DiagramBuilder switch
                 {
-                    DiagramBuilderType.Activity => new ActivityDiagramBuilder(path, DiagramFolder, Force),
-                    DiagramBuilderType.Class => new ClassDiagramBuilder(path, DiagramFolder, Force),
-                    DiagramBuilderType.Sequence => new SequenceDiagramBuilder(path, DiagramFolder, Force),
+                    DiagramBuilderType.Activity => new ActivityDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
+                    DiagramBuilderType.Class => new ClassDiagramBuilder(path, DiagramFolder,  CreateCompleteDiagram, Force),
+                    DiagramBuilderType.Sequence => new SequenceDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
                     _ => throw new InvalidOperationException("Invalid diagram builder type."),
                 };
                 diagram.CreateFromPath();

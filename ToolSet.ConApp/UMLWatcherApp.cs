@@ -199,7 +199,7 @@ namespace ToolSet.ConApp
         {
             var pathOrFilePath = menuItem.Params[menuItem.Tag]?.ToString() ?? string.Empty;
 
-            Watchers.Add(new FolderWatcher(pathOrFilePath, "Diagrams", DiagramBuilder, "*.cs", force));
+            Watchers.Add(new FolderWatcher(pathOrFilePath, "Diagrams", DiagramBuilder, "*.cs", false, force));
         }
         /// <summary>
         /// Deletes a watcher from the list of watchers.
