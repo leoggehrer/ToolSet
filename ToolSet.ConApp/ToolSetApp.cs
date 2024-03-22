@@ -1,5 +1,8 @@
 ﻿namespace ToolSet.ConApp
 {
+    /// <summary>
+    /// Represents the main application class for the ToolSet application.
+    /// </summary>
     internal partial class ToolSetApp : CommonTool.ConsoleApplication
     {
         #region Class-Constructors

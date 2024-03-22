@@ -105,6 +105,11 @@ namespace ToolSet.ConApp
             }
             Debug.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         }
+        /// <summary>
+        /// Event handler for the file creation event.
+        /// </summary>
+        /// <param name="source">The source of the event.</param>
+        /// <param name="e">The <see cref="FileSystemEventArgs"/> instance containing the event data.</param>
         private void OnCreated(object source, FileSystemEventArgs e)
         {
             Debug.WriteLine($"File: {e.FullPath} {e.ChangeType}");
@@ -113,10 +118,20 @@ namespace ToolSet.ConApp
         {
             Debug.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         }
+        /// <summary>
+        /// Event handler for the "Renamed" event.
+        /// </summary>
+        /// <param name="source">The object that raised the event.</param>
+        /// <param name="e">The event arguments containing information about the renamed file.</param>
         private void OnRenamed(object source, RenamedEventArgs e)
         {
             Debug.WriteLine($"File: {e.OldFullPath} renamed to {e.FullPath}");
         }
+        /// <summary>
+        /// Event handler for handling errors that occur during the folder watching process.
+        /// </summary>
+        /// <param name="source">The source of the event.</param>
+        /// <param name="e">An <see cref="ErrorEventArgs"/> object that contains the event data.</param>
         private void OnError(object source, ErrorEventArgs e)
         {
             Debug.WriteLine($"Error: {e.GetException()}");
@@ -124,6 +139,9 @@ namespace ToolSet.ConApp
         #endregion Event-Handlers
 
         #region dispose
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Watcher.Dispose();
