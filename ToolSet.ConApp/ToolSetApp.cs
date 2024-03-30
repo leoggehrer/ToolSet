@@ -73,7 +73,7 @@
                 new()
                 {
                     Key = $"{++mnuIdx}",
-                    Text = ToLabelText("UML-Watcher", "Watches a folder for changes and creates UML diagrams."),
+                    Text = ToLabelText("UML-Watcher", "Watches a folder for changes UML-Diagrams."),
                     Action = (self) => { new UMLWatcherApp().Run([]); },
                 },
             };

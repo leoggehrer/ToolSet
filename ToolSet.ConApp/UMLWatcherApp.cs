@@ -86,6 +86,12 @@ namespace ToolSet.ConApp
                 new()
                 {
                     Key = $"{++mnuIdx}",
+                    Text = ToLabelText("Depth", "Change max sub path depth"),
+                    Action = (self) => ChangeMaxSubPathDepth(),
+                },
+                new()
+                {
+                    Key = $"{++mnuIdx}",
                     Text = ToLabelText("Folder", "Change diagram folder"),
                     Action = (self) => ChangeDiagramFolder(),
                 },
@@ -97,7 +103,7 @@ namespace ToolSet.ConApp
                     {
                         var savePath = DocumentsPath;
                         
-                        DocumentsPath = SelectOrChangeToSubPath(DocumentsPath, [ SourcePath ]);
+                        DocumentsPath = SelectOrChangeToSubPath(DocumentsPath, MaxSubPathDepth, [ SourcePath ]);
                         if (savePath != DocumentsPath)
                         {
                             PageIndex = 0;
@@ -163,6 +169,7 @@ namespace ToolSet.ConApp
             PrintLine();
             ForegroundColor = saveForeColor;
             PrintLine($"Force flag:      {Force}");
+            PrintLine($"Max. path depth: {MaxSubPathDepth}");
             PrintLine($"Document path:   {DocumentsPath}");
             PrintLine($"Diagram builder: {DiagramBuilder} [{DiagramBuilderType.Activity}|{DiagramBuilderType.Class}|{DiagramBuilderType.Sequence}]");
             PrintLine();
