@@ -1,4 +1,6 @@
-﻿using PlantUML.ConApp;
+﻿//@BaseCode
+//MdStart
+using PlantUML.ConApp;
 
 namespace ToolSet.ConApp
 {
@@ -61,9 +63,9 @@ namespace ToolSet.ConApp
         /// </summary>
         private static string DocumentsPath { get; set; }
         /// <summary>
-        /// Gets or sets the list of folder watchers.
+        /// Gets or sets the list of folder uml-watchers.
         /// </summary>
-        private static List<FolderWatcher> Watchers { get; set; } = new();
+        private static List<UMLWatcher> UMLWatchers { get; set; } = new();
         #endregion app properties
 
         #region overrides
@@ -118,9 +120,9 @@ namespace ToolSet.ConApp
                 },
                 CreateMenuSeparator(),
             };
-            for (var i = 0; i < Watchers.Count; i++)
+            for (var i = 0; i < UMLWatchers.Count; i++)
             {
-                var watcher = Watchers[i];
+                var watcher = UMLWatchers[i];
                 var path = watcher.WatchPath;
                 var menuItem = new MenuItem
                 {
@@ -206,7 +208,7 @@ namespace ToolSet.ConApp
         {
             var pathOrFilePath = menuItem.Params[menuItem.Tag]?.ToString() ?? string.Empty;
 
-            Watchers.Add(new FolderWatcher(pathOrFilePath, "Diagrams", DiagramBuilder, "*.cs", false, force));
+            UMLWatchers.Add(new UMLWatcher(pathOrFilePath, "Diagrams", DiagramBuilder, "*.cs", false, force));
         }
         /// <summary>
         /// Deletes a watcher from the list of watchers.
@@ -216,9 +218,10 @@ namespace ToolSet.ConApp
         {
             var index = (int)menuItem.Params["index"];
 
-            Watchers[index].Dispose();
-            Watchers.RemoveAt(index);
+            UMLWatchers[index].Dispose();
+            UMLWatchers.RemoveAt(index);
         }
         #endregion app methods
     }
 }
+//MdEnd

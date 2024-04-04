@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿//@BaseCode
+//MdStart
+using System.Diagnostics;
 using PlantUML.ConApp;
 
 namespace ToolSet.ConApp
@@ -6,37 +8,37 @@ namespace ToolSet.ConApp
     /// <summary>
     /// Represents a folder watcher that monitors changes in a specified directory.
     /// </summary>
-    public partial class FolderWatcher : IDisposable
+    public abstract partial class FolderWatcher : IDisposable
     {
-        #region properties
+        #region Class-Constructors
         /// <summary>
-        /// Gets or sets the type of diagram builder.
+        /// Initializes the class.
+        /// This static constructor sets up the necessary properties for the program.
+        /// </remarks>
+        static FolderWatcher()
+        {
+            ClassConstructing();
+            ClassConstructed();
+        }
+        /// <summary>
+        /// This method is called during the construction of the class.
         /// </summary>
-        public DiagramBuilderType DiagramBuilder { get; private set; }
+        static partial void ClassConstructing();
+        /// <summary>
+        /// Represents a method that is called when a class is constructed.
+        /// </summary>
+        static partial void ClassConstructed();
+        #endregion Class-Constructors
+
+        #region properties
         /// <summary>
         /// Gets the path being watched.
         /// </summary>
         public string WatchPath { get; private set; }
         /// <summary>
-        /// Gets or sets the folder path for diagrams.
-        /// </summary>
-        public string DiagramFolder { get; private set; }
-        /// <summary>
         /// Gets or sets the filter used to determine which files are monitored in the folder.
         /// </summary>
         public string Filter { get; private set; }
-        /// <summary>
-        /// Gets or sets a value indicating whether to create a complete diagram.
-        /// </summary>
-        public bool CreateCompleteDiagram { get; set; }
-        /// <summary>
-        /// Gets or sets a value indicating whether the force flag is enabled.
-        /// </summary>
-        public bool Force { get; private set; }
-        /// <summary>
-        /// Gets or sets a value indicating whether the process is currently in progress.
-        /// </summary>
-        private bool InProcess { get; set; } = false;
         private FileSystemWatcher Watcher { get; set; }
         #endregion properties
 
@@ -45,30 +47,24 @@ namespace ToolSet.ConApp
         /// Initializes a new instance of the <see cref="FolderWatcher"/> class with the specified parameters.
         /// </summary>
         /// <param name="path">The path of the folder to watch.</param>
-        /// <param name="diagramFolder">The folder where the diagrams will be saved.</param>
-        /// <param name="diagramBuilderType">The type of diagram builder to use.</param>
         /// <param name="filter">The filter for the files to watch.</param>
-        /// <param name="createCompleteDiagram">A flag indicating whether to create a complete diagram.</param>
-        /// <param name="force">A flag indicating whether to force the creation of diagrams.</param>
-        public FolderWatcher(string path, string diagramFolder, DiagramBuilderType diagramBuilderType, string filter, bool createCompleteDiagram, bool force)
+        public FolderWatcher(string path, string filter)
         {
             Constructing();
-            WatchPath = path;
-            DiagramFolder = diagramFolder;
-            DiagramBuilder = diagramBuilderType;
-            Filter = filter;
-            CreateCompleteDiagram = createCompleteDiagram;
-            Force = force;
-            Watcher = new FileSystemWatcher(WatchPath);
 
-            Watcher.NotifyFilter = NotifyFilters.Attributes
-                                 | NotifyFilters.CreationTime
-                                 | NotifyFilters.DirectoryName
-                                 | NotifyFilters.FileName
-                                 | NotifyFilters.LastAccess
-                                 | NotifyFilters.LastWrite
-                                 | NotifyFilters.Security
-                                 | NotifyFilters.Size;
+            WatchPath = path;
+            Filter = filter;
+            Watcher = new FileSystemWatcher(WatchPath)
+            {
+                NotifyFilter = NotifyFilters.Attributes
+                            | NotifyFilters.CreationTime
+                            | NotifyFilters.DirectoryName
+                            | NotifyFilters.FileName
+                            | NotifyFilters.LastAccess
+                            | NotifyFilters.LastWrite
+                            | NotifyFilters.Security
+                            | NotifyFilters.Size
+            };
 
             Watcher.Changed += OnChanged;
             Watcher.Created += OnCreated;
@@ -92,35 +88,8 @@ namespace ToolSet.ConApp
         /// </summary>
         /// <param name="source">The object that raised the event.</param>
         /// <param name="e">The event data.</param>
-        private void OnChanged(object source, FileSystemEventArgs e)
+        protected virtual void OnChanged(object source, FileSystemEventArgs e)
         {
-            if (InProcess == false)
-            {
-                InProcess = true;
-
-                var path = Path.GetDirectoryName(e.FullPath);
-
-                if (Path.Exists(path))
-                {
-                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                    {
-                        while (IsPathAccessible(path, [Filter]) == false)
-                        {
-                            Thread.Sleep(500);
-                        }
-                    }
-
-                    UMLDiagramBuilder diagram = DiagramBuilder switch
-                    {
-                        DiagramBuilderType.Activity => new ActivityDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
-                        DiagramBuilderType.Class => new ClassDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
-                        DiagramBuilderType.Sequence => new SequenceDiagramBuilder(path, DiagramFolder, CreateCompleteDiagram, Force),
-                        _ => throw new InvalidOperationException("Invalid diagram builder type."),
-                    };
-                    diagram.CreateFromPath();
-                }
-                InProcess = false;
-            }
             Debug.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         }
         /// <summary>
@@ -128,11 +97,11 @@ namespace ToolSet.ConApp
         /// </summary>
         /// <param name="source">The source of the event.</param>
         /// <param name="e">The <see cref="FileSystemEventArgs"/> instance containing the event data.</param>
-        private void OnCreated(object source, FileSystemEventArgs e)
+        protected virtual void OnCreated(object source, FileSystemEventArgs e)
         {
             Debug.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         }
-        private void OnDeleted(object source, FileSystemEventArgs e)
+        protected virtual void OnDeleted(object source, FileSystemEventArgs e)
         {
             Debug.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         }
@@ -141,7 +110,7 @@ namespace ToolSet.ConApp
         /// </summary>
         /// <param name="source">The object that raised the event.</param>
         /// <param name="e">The event arguments containing information about the renamed file.</param>
-        private void OnRenamed(object source, RenamedEventArgs e)
+        protected virtual void OnRenamed(object source, RenamedEventArgs e)
         {
             Debug.WriteLine($"File: {e.OldFullPath} renamed to {e.FullPath}");
         }
@@ -150,7 +119,7 @@ namespace ToolSet.ConApp
         /// </summary>
         /// <param name="source">The source of the event.</param>
         /// <param name="e">An <see cref="ErrorEventArgs"/> object that contains the event data.</param>
-        private void OnError(object source, ErrorEventArgs e)
+        protected virtual void OnError(object source, ErrorEventArgs e)
         {
             Debug.WriteLine($"Error: {e.GetException()}");
         }
@@ -184,7 +153,7 @@ namespace ToolSet.ConApp
         /// </summary>
         /// <param name="filePath">The path of the file to check.</param>
         /// <returns>True if the file is in use, false otherwise.</returns>
-        private static bool IsFileInUse(string filePath)
+        public static bool IsFileInUse(string filePath)
         {
             try
             {
@@ -214,3 +183,4 @@ namespace ToolSet.ConApp
         #endregion dispose
     }
 }
+//MdEnd

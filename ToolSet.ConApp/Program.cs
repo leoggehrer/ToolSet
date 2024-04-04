@@ -1,4 +1,6 @@
-﻿namespace ToolSet.ConApp
+﻿//@BaseCode
+//MdStart
+namespace ToolSet.ConApp
 {
     /// <summary>
     /// Represents the main program class.
@@ -28,3 +30,4 @@
         #endregion app methods
     }
  }
+ //MdEnd
