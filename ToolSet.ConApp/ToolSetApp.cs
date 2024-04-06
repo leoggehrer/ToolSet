@@ -78,6 +78,12 @@ namespace ToolSet.ConApp
                     Text = ToLabelText("UML-Watcher", "Watches a folder for changes UML-Diagrams."),
                     Action = (self) => { new UMLWatcherApp().Run([]); },
                 },
+                new()
+                {
+                    Key = $"{++mnuIdx}",
+                    Text = ToLabelText("Source-Watcher", "Watches a folder for changes source-files."),
+                    Action = (self) => { new SourceWatcherApp().Run([]); },
+                },
             };
             return [.. menuItems.Union(CreateExitMenuItems())];
         }

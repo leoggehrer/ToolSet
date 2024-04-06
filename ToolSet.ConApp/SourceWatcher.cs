@@ -1,20 +1,15 @@
 ﻿//@BaseCode
 //MdStart
-using Aspose.Words.Vba;
-using CommonTool.Extensions;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using PlantUML.ConApp;
-
 namespace ToolSet.ConApp
 {
-    public partial class UMLWatcher : FolderWatcher
+    public partial class SourceWatcher : FolderWatcher
     {
         #region Class-Constructors
         /// <summary>
-        /// Initializes the <see cref="UMLWatcher"/> class.
+        /// Initializes the <see cref="SourceWatcher"/> class.
         /// This static constructor sets up the necessary properties for the program.
         /// </summary>
-        static UMLWatcher()
+        static SourceWatcher()
         {
             ClassConstructing();
             ClassConstructed();
@@ -33,30 +28,13 @@ namespace ToolSet.ConApp
 
         #region properties
         /// <summary>
-        /// Gets or sets the type of diagram builder.
-        /// </summary>
-        public DiagramBuilderType DiagramBuilder { get; private set; }
-
-        /// <summary>
         /// Gets the target path.
         /// </summary>
         public string TargetPath { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the folder path for diagrams.
-        /// </summary>
-        public string DiagramFolder { get; private set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to create a complete diagram.
-        /// </summary>
-        public bool CreateCompleteDiagram { get; set; }
-
         /// <summary>
         /// Gets or sets a value indicating whether the force flag is enabled.
         /// </summary>
         public bool Force { get; private set; }
-
         /// <summary>
         /// Gets or sets a value indicating whether the process is currently in progress.
         /// </summary>
@@ -65,24 +43,18 @@ namespace ToolSet.ConApp
 
         #region Instance-Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="UMLWatcher"/> class with the specified parameters.
+        /// Initializes a new instance of the <see cref="SourceWatcher"/> class with the specified parameters.
         /// </summary>
         /// <param name="sourcePath">The path of the folder to watch.</param>
         /// <param name="targetPath">The target path.</param>
-        /// <param name="diagramFolder">The folder where the diagrams will be saved.</param>
-        /// <param name="diagramBuilderType">The type of diagram builder to use.</param>
         /// <param name="filter">The filter for the files to watch.</param>
-        /// <param name="createCompleteDiagram">A flag indicating whether to create a complete diagram.</param>
         /// <param name="force">A flag indicating whether to force the creation of diagrams.</param>
-        public UMLWatcher(string sourcePath, string targetPath, string diagramFolder, DiagramBuilderType diagramBuilderType, string filter, bool createCompleteDiagram, bool force)
+        public SourceWatcher(string sourcePath, string targetPath, string filter, bool force)
             : base(sourcePath, filter)
         {
             Constructing();
 
             TargetPath = targetPath;
-            DiagramFolder = diagramFolder;
-            DiagramBuilder = diagramBuilderType;
-            CreateCompleteDiagram = createCompleteDiagram;
             Force = force;
 
             Constructed();
@@ -102,10 +74,10 @@ namespace ToolSet.ConApp
         {
             base.OnCreated(source, e);
 
-            if (InProcess == false)
+            if (File.Exists(e.FullPath) == false && InProcess == false)
             {
                 InProcess = true;
-                UpdateDiagrams(e.FullPath);
+                UpdateTarget(e.FullPath);
                 InProcess = false;
             }
         }
@@ -122,7 +94,7 @@ namespace ToolSet.ConApp
             if (InProcess == false)
             {
                 InProcess = true;
-                UpdateDiagrams(e.FullPath);
+                UpdateTarget(e.FullPath);
                 InProcess = false;
             }
         }
@@ -130,7 +102,7 @@ namespace ToolSet.ConApp
         /// Event handler for the "Deleted" event.
         /// </summary>
         /// <param name="source">The source of the event.</param>
-        /// <param name="e">The event arguments.</param>
+        /// <param name="e">The <see cref="FileSystemEventArgs"/> instance containing the event data.</param>
         protected override void OnDeleted(object source, FileSystemEventArgs e)
         {
             base.OnDeleted(source, e);
@@ -138,7 +110,7 @@ namespace ToolSet.ConApp
             if (InProcess == false)
             {
                 InProcess = true;
-                UpdateDiagrams(e.FullPath);
+                DeleteTargetFile(e.FullPath);
                 InProcess = false;
             }
         }
@@ -149,72 +121,54 @@ namespace ToolSet.ConApp
         /// Updates the diagrams based on the specified file path.
         /// </summary>
         /// <param name="filePath">The path of the file that triggered the update.</param>
-        private void UpdateDiagrams(string filePath)
+        private void UpdateTarget(string filePath)
         {
-            var path = Path.GetDirectoryName(filePath);
-
-            if (Path.Exists(path))
+            if (File.Exists(filePath))
             {
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
-                    while (IsPathAccessible(path, [Filter]) == false)
+                    while (IsFileInUse(filePath) == false)
                     {
                         Thread.Sleep(500);
                     }
                 }
 
-                if (Force)
-                {
-                    DeleteDiagrams(TargetPath, DiagramFolder);
-                }
+                var fileName = Path.GetFileName(filePath);
+                var targetFilePath = Path.Combine(TargetPath, fileName);
 
-                if ((DiagramBuilder & DiagramBuilderType.Activity) > 0)
+                if (Force || File.Exists(targetFilePath) == false)
                 {
-                    var builder = new ActivityDiagramBuilder(path, TargetPath, DiagramFolder, CreateCompleteDiagram, Force);
+                    var targetPath = Path.GetDirectoryName(targetFilePath);
 
-                    builder.CreateFromPath();
-                }
-                if ((DiagramBuilder & DiagramBuilderType.Class) > 0)
-                {
-                    var builder = new ClassDiagramBuilder(path, TargetPath, DiagramFolder, CreateCompleteDiagram, Force);
+                    if (Directory.Exists(targetPath) == false)
+                    {
+                        Directory.CreateDirectory(targetPath!);
+                    }
 
-                    builder.CreateFromPath();
-                }
-                if ((DiagramBuilder & DiagramBuilderType.Sequence) > 0)
-                {
-                    var builder = new SequenceDiagramBuilder(path, TargetPath, DiagramFolder, Force);
-
-                    builder.CreateFromPath();
+                    File.Copy(filePath, targetFilePath, true);
                 }
             }
         }
         /// <summary>
-        /// Deletes all PlantUML diagram files in the specified target path or diagram folder.
+        /// Deletes the target file at the specified file path.
         /// </summary>
-        /// <param name="targetPath">The target path where the diagram files are located.</param>
-        /// <param name="diagramFolder">The optional diagram folder within the target path.</param>
-        private void DeleteDiagrams(string targetPath, string diagramFolder)
+        /// <param name="filePath">The path of the file to delete.</param>
+        private void DeleteTargetFile(string filePath)
         {
-            var path = diagramFolder.IsNullOrEmpty() ? targetPath : Path.Combine(targetPath, diagramFolder);
+            var fileName = Path.GetFileName(filePath);
+            var targetFilePath = Path.Combine(TargetPath, fileName);
 
-            if (Path.Exists(path))
+            if (Force && File.Exists(targetFilePath))
             {
-                var di = new DirectoryInfo(path);
-                var files = di.GetFiles(PlantUML.Logic.DiagramCreator.PlantUMLExtension.Replace(".", "*."))
-                                     .Where(p => p.Extension == PlantUML.Logic.DiagramCreator.PlantUMLExtension);
-
-                foreach (FileInfo file in files)
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
-                    try
+                    while (IsFileInUse(filePath) == false)
                     {
-                        file.Attributes = FileAttributes.Normal;
-                        File.Delete(file.FullName);
-                    }
-                    catch
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Could not delete file: {file.FullName}");
+                        Thread.Sleep(500);
                     }
                 }
+
+                File.Delete(targetFilePath);
             }
         }
         #endregion app-methods

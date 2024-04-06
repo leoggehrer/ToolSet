@@ -5,16 +5,16 @@ using PlantUML.ConApp;
 namespace ToolSet.ConApp
 {
     /// <summary>
-    /// Represents the UMLWatcherApp class.
+    /// Represents the SourceWatcherApp class.
     /// </summary>
-    internal partial class UMLWatcherApp : CommonTool.ConsoleApplication
+    internal partial class SourceWatcherApp : CommonTool.ConsoleApplication
     {
         #region Class-Constructors
         /// <summary>
         /// Initializes the <see cref="Program"/> class.
         /// This static constructor sets up the necessary properties for the program.
         /// </remarks>
-        static UMLWatcherApp()
+        static SourceWatcherApp()
         {
             ClassConstructing();
             TargetPath = ProjectsPath = SourcePath;
@@ -34,7 +34,7 @@ namespace ToolSet.ConApp
         /// <summary>
         /// Initializes a new instance of the <see cref="DocConversionApp"/> class.
         /// </summary>
-        public UMLWatcherApp()
+        public SourceWatcherApp()
         {
             Constructing();
             Constructed();
@@ -69,7 +69,7 @@ namespace ToolSet.ConApp
         /// <summary>
         /// Gets or sets the list of folder uml-watchers.
         /// </summary>
-        private static List<UMLWatcher> Watchers { get; set; } = new();
+        private static List<SourceWatcher> Watchers { get; set; } = new();
         #endregion app properties
 
         #region overrides
@@ -150,7 +150,7 @@ namespace ToolSet.ConApp
                 var menuItem = new MenuItem
                 {
                     Key = $"{++mnuIdx}",
-                    Text = ToLabelText("Remove watcher", $"{path.Replace(ProjectsPath, string.Empty)} - {watcher.DiagramBuilder} - Force={watcher.Force}"),
+                    Text = ToLabelText("Remove watcher", $"{watcher.TargetPath} - Force={watcher.Force}"),
                     Tag = "watcher",
                     Action = (self) => DeleteWatcher(self),
                     Params = new() { { "index", i } },
@@ -192,7 +192,7 @@ namespace ToolSet.ConApp
 
             ForegroundColor = ConsoleColor.Green;
 
-            count = PrintLine(nameof(UMLWatcherApp));
+            count = PrintLine(nameof(SourceWatcherApp));
             PrintLine('=', count);
             PrintLine();
             ForegroundColor = saveForeColor;
@@ -239,7 +239,7 @@ namespace ToolSet.ConApp
             var sourcePath = menuItem.Params["sourcePath"]?.ToString() ?? string.Empty;
             var targetPath = menuItem.Params["targetPath"]?.ToString() ?? string.Empty;
 
-            Watchers.Add(new UMLWatcher(sourcePath, targetPath, DiagramFolder, DiagramBuilder, "*.cs", false, force));
+            Watchers.Add(new SourceWatcher(sourcePath, targetPath, "*.cs", force));
         }
         /// <summary>
         /// Deletes a watcher from the list of watchers.

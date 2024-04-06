@@ -1,7 +1,6 @@
 ﻿//@BaseCode
 //MdStart
 using System.Diagnostics;
-using PlantUML.ConApp;
 
 namespace ToolSet.ConApp
 {
