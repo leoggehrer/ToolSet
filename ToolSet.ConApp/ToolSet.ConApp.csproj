@@ -4,6 +4,7 @@
     <ProjectReference Include="..\..\DocConversion\DocConversion.ConApp\DocConversion.ConApp.csproj" />
     <ProjectReference Include="..\..\CommonTool\CommonTool\CommonTool.csproj" />
     <ProjectReference Include="..\..\PlantUML\PlantUML.ConApp\PlantUML.ConApp.csproj" />
+    <ProjectReference Include="..\..\FileWatcher\FileWatcher.ConApp\FileWatcher.ConApp.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

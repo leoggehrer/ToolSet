@@ -76,13 +76,13 @@ namespace ToolSet.ConApp
                 {
                     Key = $"{++mnuIdx}",
                     Text = ToLabelText("UML-Watcher", "Watches a folder for changes UML-Diagrams."),
-                    Action = (self) => { new UMLWatcherApp().Run([]); },
+                    Action = (self) => { new FileWatcher.ConApp.UMLWatcherApp().Run([]); },
                 },
                 new()
                 {
                     Key = $"{++mnuIdx}",
                     Text = ToLabelText("Source-Watcher", "Watches a folder for changes source-files."),
-                    Action = (self) => { new SourceWatcherApp().Run([]); },
+                    Action = (self) => { new FileWatcher.ConApp.SourceWatcherApp().Run([]); },
                 },
             };
             return [.. menuItems.Union(CreateExitMenuItems())];
