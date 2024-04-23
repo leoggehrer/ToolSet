@@ -1,8 +1,6 @@
 ﻿//@BaseCode
 //MdStart
-using Aspose.Words.Vba;
 using CommonTool.Extensions;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PlantUML.ConApp;
 
 namespace ToolSet.ConApp
